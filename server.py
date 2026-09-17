@@ -88,7 +88,22 @@ def run_usim_simulation(base_price, monthly_fixed_cost, variable_cost_per_unit, 
 SESSIONS = {}
 
 PORT = int(os.environ.get("PORT", 8080))
-STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+
+def resolve_static_dir():
+    candidates = [
+        os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")),
+        os.path.abspath(os.path.join(os.getcwd(), "static")),
+        os.path.abspath(os.path.join(os.getcwd(), "sakec_tbi_platform", "static")),
+        os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "sakec_tbi_platform", "static")),
+        os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "static")),
+    ]
+    for c in candidates:
+        if os.path.exists(os.path.join(c, "index.html")):
+            return c
+    return candidates[0]
+
+STATIC_DIR = resolve_static_dir()
+
 
 class SAKECTBIRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -134,9 +149,73 @@ class SAKECTBIRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         # Static assets routing
         if not path.startswith("/api/"):
-            if path == "/" or path == "":
-                self.path = "/index.html"
-            return super().do_GET()
+            rel_file = "index.html" if path in ["/", ""] else path.lstrip("/")
+            
+            # Check multiple possible file locations
+            candidate_paths = [
+                os.path.join(STATIC_DIR, rel_file),
+                os.path.join(os.getcwd(), "static", rel_file),
+                os.path.join(os.getcwd(), "sakec_tbi_platform", "static", rel_file),
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", rel_file),
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "sakec_tbi_platform", "static", rel_file)
+            ]
+            
+            target_path = None
+            for cp in candidate_paths:
+                if os.path.exists(cp) and os.path.isfile(cp):
+                    target_path = cp
+                    break
+                    
+            if target_path:
+                ctype, _ = mimetypes.guess_type(target_path)
+                if not ctype:
+                    if target_path.endswith(".js"): ctype = "application/javascript"
+                    elif target_path.endswith(".css"): ctype = "text/css"
+                    elif target_path.endswith(".html"): ctype = "text/html"
+                    else: ctype = "application/octet-stream"
+                try:
+                    with open(target_path, "rb") as f:
+                        data = f.read()
+                    self.send_response(200)
+                    self.send_header("Content-Type", f"{ctype}; charset=utf-8" if "text" in ctype or "javascript" in ctype else ctype)
+                    self.send_header("Content-Length", str(len(data)))
+                    self.end_headers()
+                    self.wfile.write(data)
+                    return
+                except Exception as e:
+                    self.send_error(500, f"Error reading file: {str(e)}")
+                    return
+            else:
+                # Provide a helpful diagnostics page if static files are not found
+                self.send_response(404)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.end_headers()
+                diag_html = f"""<!DOCTYPE html>
+<html>
+<head><title>SAKEC TBI Platform - Static File Not Found</title></head>
+<body style="font-family: sans-serif; padding: 2rem; background: #f8fafc; color: #1e293b;">
+    <h2 style="color: #0d2a4a;">SAKEC Technology Business Incubator Platform</h2>
+    <p><b>Developed by Dr. Rohan Appasaheb Borgalli</b></p>
+    <div style="background: #fee2e2; border-left: 4px solid #ef4444; padding: 1rem; border-radius: 4px; margin: 1rem 0;">
+        <h3 style="color: #991b1b; margin: 0 0 0.5rem 0;">404 - Static Asset Not Found: <code>{path}</code></h3>
+        <p style="margin: 0;">The server is running, but could not locate the <code>static/</code> directory containing <code>index.html</code>.</p>
+    </div>
+    <h4>Diagnostic Info:</h4>
+    <ul>
+        <li><b>Current Working Directory:</b> <code>{os.getcwd()}</code></li>
+        <li><b>Server File Directory:</b> <code>{os.path.dirname(os.path.abspath(__file__))}</code></li>
+        <li><b>Resolved Static Directory:</b> <code>{STATIC_DIR}</code> (Exists: {os.path.exists(STATIC_DIR)})</li>
+        <li><b>Files in current dir:</b> <code>{os.listdir(os.getcwd())}</code></li>
+    </ul>
+    <h4>How to fix:</h4>
+    <ol>
+        <li>Check your GitHub repository: Ensure the <code>static/</code> folder (containing <code>index.html</code>, <code>style.css</code>, <code>app.js</code>) was committed and pushed to GitHub.</li>
+        <li>If your repository has a subfolder <code>sakec_tbi_platform</code>, set <b>Root Directory</b> in Render Settings to <code>sakec_tbi_platform</code>.</li>
+    </ol>
+</body>
+</html>"""
+                self.wfile.write(diag_html.encode("utf-8"))
+                return
 
         # REST API Routes
         user = self._get_auth_user()
