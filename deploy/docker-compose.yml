@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  sakec-tbi:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: sakec_tbi_platform
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - SAKEC_DB_PATH=/app/data/sakec_tbi.db
+    volumes:
+      - sakec_tbi_data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/analytics/portfolio').read()\" || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  sakec_tbi_data:
+    driver: local

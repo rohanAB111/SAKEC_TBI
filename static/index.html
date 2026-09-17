@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAKEC Technology Business Incubator (TBI) Management Platform</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <!-- Top App Header -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand-section">
+        <div class="college-badge">
+          <div class="title">SAKEC</div>
+          <div class="sub">TBI Chembur</div>
+        </div>
+        <div class="brand-titles">
+          <h1>SAKEC Technology Business Incubator Platform</h1>
+          <p>Shah & Anchor Kutchhi Engineering College — Innovation, Simulation & Incubation Ecosystem</p>
+        </div>
+      </div>
+
+      <div class="header-meta">
+        <div class="attribution-tag">
+          Developed by Dr. Rohan Appasaheb Borgalli
+        </div>
+        <div class="user-status">
+          <span class="user-badge" id="currentUserDisplay">Viewing as: Guest</span>
+          <button class="btn-auth" id="authBtn" onclick="openLoginModal()">Login</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SAKEC Acronym & Value System -->
+    <div class="sakec-acronym-bar">
+      <span><b>S</b> – Sparkup</span>
+      <span><b>A</b> – Accelerate</span>
+      <span><b>K</b> – Katalyst</span>
+      <span><b>E</b> – Emerge</span>
+      <span><b>C</b> – Cohesion</span>
+      <span>Affiliated to University of Mumbai | Autonomous Institute</span>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('tab-portfolio')">
+      📊 Unified Portfolio Dashboard
+    </button>
+    <button class="nav-tab" onclick="switchTab('tab-digital-twin')">
+      🏢 WorkOS Digital Twin (360° View)
+    </button>
+    <button class="nav-tab" onclick="switchTab('tab-usim')">
+      📈 USim Decision Simulator
+    </button>
+    <button class="nav-tab" onclick="switchTab('tab-milestones')">
+      🎯 Milestones & KPI Tracking
+    </button>
+    <button class="nav-tab" onclick="switchTab('tab-mentorship')">
+      🤝 Mentorship & Reviews
+    </button>
+    <button class="nav-tab" onclick="switchTab('tab-scale')">
+      🚀 Incubator Admin & Scale-up
+    </button>
+  </nav>
+
+  <!-- Main Work Area -->
+  <main class="main-container">
+
+    <!-- TAB 1: EXECUTIVE PORTFOLIO DASHBOARD (Unified View for Authorities & Faculty Incharge) -->
+    <section id="tab-portfolio" class="tab-content active">
+      <div class="kpi-grid">
+        <div class="kpi-card gold">
+          <div class="kpi-label">Incubated Startups</div>
+          <div class="kpi-value" id="kpiTotalStartups">5</div>
+          <div class="kpi-sub">Active cohort ventures</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-label">Total Monthly Revenue</div>
+          <div class="kpi-value" id="kpiTotalRevenue">₹2,75,000</div>
+          <div class="kpi-sub">Commercial traction</div>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kpi-label">Average Health Score</div>
+          <div class="kpi-value" id="kpiAvgHealth">84.4/100</div>
+          <div class="kpi-sub">Operational index</div>
+        </div>
+        <div class="kpi-card orange">
+          <div class="kpi-label">Paying Clients & Hubs</div>
+          <div class="kpi-value" id="kpiTotalClients">44</div>
+          <div class="kpi-sub">Clinics, farms & campuses</div>
+        </div>
+        <div class="kpi-card gold">
+          <div class="kpi-label">Founders & Jobs Created</div>
+          <div class="kpi-value" id="kpiTotalJobs">16</div>
+          <div class="kpi-sub">High-tech employment</div>
+        </div>
+      </div>
+
+      <!-- 5-Phase Incubation Lifecycle Funnel -->
+      <div class="funnel-container">
+        <div class="section-title">
+          <span>5-Phase Incubation Lifecycle (CybraneX USim + WorkOS Model)</span>
+          <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">Standard 6-Month Incubation Pipeline</span>
+        </div>
+        <div class="lifecycle-steps" id="lifecycleStepsContainer">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Startups Portfolio Table -->
+      <div class="content-card">
+        <div class="section-title">
+          <span>Active Incubated Ventures Portfolio</span>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="portfolioSearchInput" placeholder="Search startup, founder, tech..." onkeyup="filterPortfolioTable()" style="padding: 0.4rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.85rem; width: 240px;">
+            <button class="btn btn-outline btn-sm" onclick="exportPortfolioCSV()">📥 Export Portfolio CSV</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table id="portfolioTable">
+            <thead>
+              <tr>
+                <th>Startup Name</th>
+                <th>Department</th>
+                <th>Founder</th>
+                <th>Incubation Phase</th>
+                <th>Health Score</th>
+                <th>Monthly Rev</th>
+                <th>Runway</th>
+                <th>Paying Clients</th>
+                <th>Investor Readiness</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="portfolioTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Institutional Accreditation & Governance Alignment -->
+      <div class="content-card" style="border-left: 4px solid var(--accent);">
+        <div class="section-title">
+          <span>Institutional Governance & Accreditation Metrics (NAAC / NIRF / NBA)</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+          Data automatically aggregated from the SAKEC TBI Platform for statutory accreditation disclosures, college annual reports, and university oversight.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+          <div style="background: #f8fafc; padding: 0.85rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <b style="color: var(--primary);">NAAC Criterion 2 & 3:</b>
+            <div style="font-size: 0.82rem; margin-top: 0.3rem;">• 100% startups founded by student/faculty teams</div>
+            <div style="font-size: 0.82rem;">• 5 Deep-Tech innovation domains represented</div>
+            <div style="font-size: 0.82rem;">• 16 engineering students directly engaged in product development</div>
+          </div>
+          <div style="background: #f8fafc; padding: 0.85rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <b style="color: var(--primary);">NIRF Innovation Ranking:</b>
+            <div style="font-size: 0.82rem; margin-top: 0.3rem;">• ₹2.75L/month generated in verifiable external revenue</div>
+            <div style="font-size: 0.82rem;">• Active mentoring by industry advisors and CybraneX</div>
+            <div style="font-size: 0.82rem;">• Regular pitch validation & investor demo forums (SAKEC InnoVest)</div>
+          </div>
+          <div style="background: #f8fafc; padding: 0.85rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <b style="color: var(--primary);">NBA Outcome-Based Education:</b>
+            <div style="font-size: 0.82rem; margin-top: 0.3rem;">• Direct attainment of PO1 (Engineering Knowledge), PO3 (Design/Dev)</div>
+            <div style="font-size: 0.82rem;">• Multi-disciplinary teamwork (EXTC, IT, Computer, AIDS, Cyber Security)</div>
+            <div style="font-size: 0.82rem;">• High-impact Capstone to Commercial Startup translation</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: WORKOS BUSINESS DIGITAL TWIN -->
+    <section id="tab-digital-twin" class="tab-content">
+      <div class="content-card">
+        <div class="section-title">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <span>Business Digital Twin (WorkOS Enterprise View)</span>
+            <select id="dtStartupSelect" onchange="loadDigitalTwin(this.value)" style="padding: 0.4rem 0.85rem; border-radius: var(--radius); border: 1px solid var(--border); font-weight: 600; color: var(--primary);">
+              <!-- Options populated by JS -->
+            </select>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btnEditDigitalTwin" onclick="openEditDigitalTwinModal()">✏️ Update Digital Twin</button>
+        </div>
+
+        <div id="digitalTwinHeader" style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- 360-Degree Operational Digital Twin Sections -->
+        <div class="dt-grid">
+          <div class="dt-section">
+            <h3>💡 Value Proposition & Core Innovation</h3>
+            <p id="dtValueProp">Loading...</p>
+          </div>
+
+          <div class="dt-section">
+            <h3>📊 Business & Pricing Model</h3>
+            <div id="dtBizModel">Loading...</div>
+          </div>
+
+          <div class="dt-section">
+            <h3>🎯 Target Market & Customer Segment</h3>
+            <p id="dtTargetMarket">Loading...</p>
+          </div>
+
+          <div class="dt-section">
+            <h3>🛠️ Technology Stack & IP Assets</h3>
+            <p id="dtTechStack">Loading...</p>
+          </div>
+
+          <div class="dt-section">
+            <h3>👥 Core Team & Faculty Advisors</h3>
+            <div id="dtTeamStructure">Loading...</div>
+          </div>
+
+          <div class="dt-section">
+            <h3>📈 Sales Pipeline & Client Traction</h3>
+            <p id="dtSalesPipeline">Loading...</p>
+          </div>
+
+          <div class="dt-section">
+            <h3>🗺️ Product Development Roadmap</h3>
+            <div id="dtRoadmap">Loading...</div>
+          </div>
+
+          <div class="dt-section">
+            <h3>⚠️ Risk Assessment & Mitigation</h3>
+            <p id="dtRisk">Loading...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: USIM STARTUP DECISION SIMULATOR -->
+    <section id="tab-usim" class="tab-content">
+      <div class="content-card">
+        <div class="section-title">
+          <span>USim - Strategic & Financial Decision Simulator</span>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span style="font-size: 0.85rem;">Select Startup:</span>
+            <select id="usimStartupSelect" onchange="prefillSimulator(this.value)" style="padding: 0.4rem 0.85rem; border-radius: var(--radius); border: 1px solid var(--border); font-weight: 600;">
+              <!-- Options populated by JS -->
+            </select>
+          </div>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Evaluate unit economics, pricing strategies, customer acquisition costs (CAC), burn rate, and runway projections before committing real-world capital.
+        </p>
+
+        <div class="simulator-layout">
+          <!-- Input Controls -->
+          <div class="sim-controls">
+            <h3 style="font-size: 1rem; color: var(--primary); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">⚙️ Simulation Parameters</h3>
+
+            <div class="form-group">
+              <label>Base Price / License (₹): <span id="valBasePrice">3500</span></label>
+              <input type="range" id="simBasePrice" min="100" max="50000" step="100" value="3500" oninput="updateSimFromSliders()">
+            </div>
+
+            <div class="form-group">
+              <label>Monthly Fixed Costs (₹): <span id="valFixedCost">85000</span></label>
+              <input type="range" id="simFixedCost" min="10000" max="300000" step="5000" value="85000" oninput="updateSimFromSliders()">
+            </div>
+
+            <div class="form-group">
+              <label>Variable Cost / Unit (₹): <span id="valVarCost">300</span></label>
+              <input type="range" id="simVarCost" min="0" max="10000" step="50" value="300" oninput="updateSimFromSliders()">
+            </div>
+
+            <div class="form-group">
+              <label>Monthly Marketing Budget (₹): <span id="valMarketing">25000</span></label>
+              <input type="range" id="simMarketing" min="0" max="150000" step="2500" value="25000" oninput="updateSimFromSliders()">
+            </div>
+
+            <div class="form-group">
+              <label>Customer Acquisition Cost (CAC) (₹): <span id="valCAC">2100</span></label>
+              <input type="range" id="simCAC" min="200" max="15000" step="100" value="2100" oninput="updateSimFromSliders()">
+            </div>
+
+            <div class="form-group">
+              <label>Monthly Organic Growth (%): <span id="valGrowth">15%</span></label>
+              <input type="range" id="simGrowth" min="1" max="50" step="1" value="15" oninput="updateSimFromSliders()">
+            </div>
+
+            <div class="form-group">
+              <label>Monthly Churn Rate (%): <span id="valChurn">2%</span></label>
+              <input type="range" id="simChurn" min="0" max="25" step="0.5" value="2" oninput="updateSimFromSliders()">
+            </div>
+
+            <div class="form-group">
+              <label>Cash in Bank (₹):</label>
+              <input type="number" id="simCash" value="1250000" onchange="runSimulation()">
+            </div>
+
+            <div class="form-group">
+              <label>Starting Customers:</label>
+              <input type="number" id="simCustomers" value="18" onchange="runSimulation()">
+            </div>
+
+            <button class="btn btn-accent" style="width: 100%; margin-top: 0.5rem;" onclick="saveCurrentSimulation()">💾 Save Scenario to Database</button>
+          </div>
+
+          <!-- Simulation Outputs & Projections -->
+          <div>
+            <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+              <div class="kpi-card green">
+                <div class="kpi-label">Contribution Margin</div>
+                <div class="kpi-value" style="font-size: 1.4rem;" id="simOutMargin">₹3,200</div>
+                <div class="kpi-sub" id="simOutMarginPct">91.4% gross margin</div>
+              </div>
+              <div class="kpi-card blue">
+                <div class="kpi-label">LTV / CAC Ratio</div>
+                <div class="kpi-value" style="font-size: 1.4rem;" id="simOutLtvCac">76.2x</div>
+                <div class="kpi-sub">Healthy SaaS > 3.0x</div>
+              </div>
+              <div class="kpi-card gold">
+                <div class="kpi-label">Break-Even Point</div>
+                <div class="kpi-value" style="font-size: 1.4rem;" id="simOutBreakEven">Month 2</div>
+                <div class="kpi-sub">Cash-flow positive</div>
+              </div>
+              <div class="kpi-card orange">
+                <div class="kpi-label">Projected ARR</div>
+                <div class="kpi-value" style="font-size: 1.4rem;" id="simOutARR">₹1.5 Cr</div>
+                <div class="kpi-sub" id="simOutRunway">Runway: Infinite</div>
+              </div>
+            </div>
+
+            <!-- SVG Visual Projection Chart -->
+            <div class="content-card" style="margin-bottom: 1rem;">
+              <div class="section-title">
+                <span>12-Month Revenue & Cash Balance Projections</span>
+              </div>
+              <div id="simChartContainer" style="width: 100%; height: 200px; background: #ffffff; border-radius: var(--radius); position: relative;">
+                <!-- SVG injected by JS -->
+              </div>
+            </div>
+
+            <!-- 12-Month Detailed Table -->
+            <div class="content-card">
+              <div class="section-title">
+                <span>Monthly Simulation Cash Flow Schedule</span>
+              </div>
+              <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Clients</th>
+                      <th>Revenue (₹)</th>
+                      <th>Fixed Costs (₹)</th>
+                      <th>Variable Costs (₹)</th>
+                      <th>Marketing (₹)</th>
+                      <th>Total Exp (₹)</th>
+                      <th>Net Flow (₹)</th>
+                      <th>Cash Balance (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="simTableBody">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Saved Scenarios List -->
+            <div class="content-card">
+              <div class="section-title">
+                <span>Saved Simulation Scenarios for this Startup</span>
+              </div>
+              <div id="savedSimsList">Loading saved scenarios...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: MILESTONES & KPI PROGRESS TRACKER -->
+    <section id="tab-milestones" class="tab-content">
+      <div class="content-card">
+        <div class="section-title">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <span>Incubation Milestones & Execution Tracking</span>
+            <select id="milestoneStartupSelect" onchange="loadMilestones(this.value)" style="padding: 0.4rem 0.85rem; border-radius: var(--radius); border: 1px solid var(--border); font-weight: 600;">
+              <!-- Populated by JS -->
+            </select>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openAddMilestoneModal()">+ Add New Milestone</button>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Phase</th>
+                <th>Milestone Deliverable</th>
+                <th>Target Date</th>
+                <th>Status</th>
+                <th>Verification Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="milestonesTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Monthly KPI Entry & History -->
+      <div class="content-card">
+        <div class="section-title">
+          <span>Historical Monthly KPI Performance</span>
+          <button class="btn btn-outline btn-sm" onclick="openLogKPIModal()">+ Log Monthly KPI Record</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Monthly Revenue</th>
+                <th>Monthly Burn</th>
+                <th>Paying Customers</th>
+                <th>Active Users</th>
+                <th>CAC (₹)</th>
+                <th>LTV (₹)</th>
+                <th>Operational Notes</th>
+              </tr>
+            </thead>
+            <tbody id="kpiTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: MENTORSHIP & REVIEWS -->
+    <section id="tab-mentorship" class="tab-content">
+      <div class="content-card">
+        <div class="section-title">
+          <span>Mentorship Reviews & Strategic Guidance Logs</span>
+          <button class="btn btn-accent btn-sm" onclick="openLogMentorshipModal()">+ Log Mentor Review Session</button>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Continuous review by Dr. Rohan Appasaheb Borgalli, SAKEC senior academic mentors, and CybraneX industry advisors.
+        </p>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Startup</th>
+                <th>Mentor</th>
+                <th>Focus Area</th>
+                <th>Rating</th>
+                <th>Feedback & Observations</th>
+                <th>Key Action Items</th>
+              </tr>
+            </thead>
+            <tbody id="mentorshipTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: INCUBATOR ADMIN & SCALE-UP -->
+    <section id="tab-scale" class="tab-content">
+      <div class="content-card" style="border-top: 4px solid var(--accent);">
+        <div class="section-title">
+          <span>Onboard New Incubated Startup (Scale to N Startups)</span>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          The SAKEC TBI Platform is engineered to seamlessly scale from the initial 5 startups to any number of incubated ventures across departments.
+        </p>
+
+        <form id="onboardStartupForm" onsubmit="handleOnboardStartup(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+          <div class="form-group">
+            <label>Startup Name *</label>
+            <input type="text" id="newStartupName" required placeholder="e.g., QuantumSense Labs">
+          </div>
+          <div class="form-group">
+            <label>Tagline / One-line Description *</label>
+            <input type="text" id="newStartupTagline" required placeholder="e.g., Quantum-resistant cryptography for IoT devices">
+          </div>
+          <div class="form-group">
+            <label>Department / Laboratory *</label>
+            <select id="newStartupDept">
+              <option value="Electronics & Telecommunication (EXTC)">Electronics & Telecommunication (EXTC)</option>
+              <option value="Computer Engineering">Computer Engineering</option>
+              <option value="Information Technology">Information Technology</option>
+              <option value="Artificial Intelligence & Data Science (AIDS)">Artificial Intelligence & Data Science (AIDS)</option>
+              <option value="Cyber Security">Cyber Security</option>
+              <option value="Electronics & Computer Science (ECS)">Electronics & Computer Science (ECS)</option>
+              <option value="Interdisciplinary SAKEC Lab">Interdisciplinary SAKEC Lab</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Founder Name *</label>
+            <input type="text" id="newStartupFounder" required placeholder="e.g., Sameer Patil">
+          </div>
+          <div class="form-group">
+            <label>Founder SAKEC Email *</label>
+            <input type="email" id="newStartupEmail" required placeholder="e.g., sameer.patil@sakec.ac.in">
+          </div>
+          <div class="form-group">
+            <label>Current Development Stage</label>
+            <select id="newStartupStage">
+              <option value="Ideation / Research">Ideation / Research</option>
+              <option value="Prototype / Proof of Concept">Prototype / Proof of Concept</option>
+              <option value="MVP / Beta Validation">MVP / Beta Validation</option>
+              <option value="Early Revenue">Early Revenue</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Initial Incubation Phase</label>
+            <select id="newStartupPhase">
+              <option value="1">Phase 1: Startup Selection & Digital Onboarding</option>
+              <option value="2">Phase 2: Business Simulation & Strategic Planning</option>
+              <option value="3">Phase 3: Operational Deployment through WorkOS</option>
+              <option value="4">Phase 4: Mentorship & Incubation Monitoring</option>
+              <option value="5">Phase 5: Investor Readiness & Graduation</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Team Size</label>
+            <input type="number" id="newStartupTeamSize" value="3" min="1" max="25">
+          </div>
+
+          <div style="grid-column: 1 / -1; margin-top: 0.5rem;">
+            <button type="submit" class="btn btn-primary">🚀 Complete Onboarding & Provision WorkOS Digital Twin</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- College Server System Diagnostic & Deployment Status -->
+      <div class="content-card">
+        <div class="section-title">
+          <span>College Server Deployment & System Diagnostic</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; font-size: 0.85rem;">
+          <div style="background: #f8fafc; padding: 0.85rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <b>Server Host:</b> SAKEC College Intranet / Linux Server<br>
+            <b>Port:</b> 8080 (Reverse proxied via Nginx: 80 / 443)<br>
+            <b>Engine:</b> Multi-Threaded SAKEC TBI Server<br>
+            <b>Storage Engine:</b> SQLite3 with Automated Rotation
+          </div>
+          <div style="background: #f8fafc; padding: 0.85rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <b>Developer & Lead:</b> Dr. Rohan Appasaheb Borgalli<br>
+            <b>Designation:</b> Faculty Incharge, SAKEC TBI<br>
+            <b>Official Email:</b> incubation@sakec.ac.in<br>
+            <b>Institutional Contact:</b> +91 9821057992
+          </div>
+          <div style="background: #f8fafc; padding: 0.85rem; border-radius: var(--radius); border: 1px solid var(--border);">
+            <b>Role-Based Access:</b> Active (4 User Roles)<br>
+            <b>CybraneX Framework:</b> USim + WorkOS 2026<br>
+            <b>Active Startups:</b> <span id="diagActiveStartups">5</span> Ventures<br>
+            <b>Scale Capacity:</b> Unlimited Startups & Cohorts
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Login Modal -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>SAKEC TBI Platform Authentication</h3>
+        <button onclick="closeLoginModal()" style="border: none; background: none; font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label>Username / SAKEC Email</label>
+            <input type="text" id="loginUsername" required placeholder="e.g. rohan.borgalli or founder.curadental">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" required value="Sakec@123">
+          </div>
+          <div style="margin-top: 1rem;">
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+          </div>
+        </form>
+
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+          <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem;">QUICK DEMO ACCESS (1-Click Login):</div>
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+            <button class="btn btn-outline btn-sm" onclick="quickLogin('rohan.borgalli', 'Sakec@123')">🔑 Dr. Rohan Appasaheb Borgalli (Faculty Incharge / Admin)</button>
+            <button class="btn btn-outline btn-sm" onclick="quickLogin('principal', 'Sakec@123')">🎓 Dr. Bhavesh Patel (Principal / College Authority)</button>
+            <button class="btn btn-outline btn-sm" onclick="quickLogin('mentor.tech', 'Sakec@123')">🧑‍🏫 Prof. Milind Khairnar (Technical Mentor)</button>
+            <button class="btn btn-outline btn-sm" onclick="quickLogin('founder.curadental', 'Sakec@123')">🚀 Tanvi Sawant (Founder, CuraDental AI)</button>
+            <button class="btn btn-outline btn-sm" onclick="quickLogin('founder.edgefarm', 'Sakec@123')">🌱 Aarav Mehta (Founder, EdgeFarm IoT)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Digital Twin Modal -->
+  <div class="modal-overlay" id="editDtModal">
+    <div class="modal-box" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3>Update WorkOS Business Digital Twin</h3>
+        <button onclick="closeEditDigitalTwinModal()" style="border: none; background: none; font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="editDtForm" onsubmit="handleSaveDigitalTwin(event)">
+          <div class="form-group">
+            <label>Value Proposition & Core Innovation</label>
+            <textarea id="editDtValueProp" rows="2" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Target Market</label>
+            <textarea id="editDtTargetMarket" rows="2" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Sales Pipeline Stage & Client Traction</label>
+            <input type="text" id="editDtSalesPipeline" required>
+          </div>
+          <div class="form-group">
+            <label>Tech Stack & IP</label>
+            <input type="text" id="editDtTechStack" required>
+          </div>
+          <div class="form-group">
+            <label>Risk Assessment & Mitigation</label>
+            <textarea id="editDtRisk" rows="2" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Save Digital Twin Updates</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Milestone Modal -->
+  <div class="modal-overlay" id="addMilestoneModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Add Incubation Milestone</h3>
+        <button onclick="closeAddMilestoneModal()" style="border: none; background: none; font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="addMilestoneForm" onsubmit="handleSaveNewMilestone(event)">
+          <div class="form-group">
+            <label>Milestone Title / Deliverable</label>
+            <input type="text" id="newMilestoneTitle" required placeholder="e.g. Complete clinical validation dataset audit">
+          </div>
+          <div class="form-group">
+            <label>Incubation Phase</label>
+            <select id="newMilestonePhase">
+              <option value="1">Phase 1: Startup Selection & Digital Onboarding</option>
+              <option value="2">Phase 2: Business Simulation & Strategic Planning</option>
+              <option value="3">Phase 3: Operational Deployment through WorkOS</option>
+              <option value="4">Phase 4: Mentorship & Incubation Monitoring</option>
+              <option value="5">Phase 5: Investor Readiness & Graduation</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Target Completion Date</label>
+            <input type="date" id="newMilestoneDate" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Create Milestone</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log KPI Modal -->
+  <div class="modal-overlay" id="logKpiModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Log Monthly Startup Performance KPI</h3>
+        <button onclick="closeLogKPIModal()" style="border: none; background: none; font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="logKpiForm" onsubmit="handleSaveKPI(event)">
+          <div class="form-group">
+            <label>Month (YYYY-MM)</label>
+            <input type="text" id="kpiMonth" value="2026-09" required>
+          </div>
+          <div class="form-group">
+            <label>Monthly Revenue (₹)</label>
+            <input type="number" id="kpiRevenue" value="120000" required>
+          </div>
+          <div class="form-group">
+            <label>Monthly Burn Rate (₹)</label>
+            <input type="number" id="kpiBurn" value="85000" required>
+          </div>
+          <div class="form-group">
+            <label>Paying Customers</label>
+            <input type="number" id="kpiCustomers" value="18" required>
+          </div>
+          <div class="form-group">
+            <label>Active Users</label>
+            <input type="number" id="kpiUsers" value="1550" required>
+          </div>
+          <div class="form-group">
+            <label>Customer Acquisition Cost (CAC) (₹)</label>
+            <input type="number" id="kpiCAC" value="1850">
+          </div>
+          <div class="form-group">
+            <label>Estimated LTV (₹)</label>
+            <input type="number" id="kpiLTV" value="56000">
+          </div>
+          <div class="form-group">
+            <label>Operational Notes</label>
+            <textarea id="kpiNotes" rows="2"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Record Monthly KPIs</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log Mentorship Review Modal -->
+  <div class="modal-overlay" id="mentorshipModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Log Mentor Review Session</h3>
+        <button onclick="closeLogMentorshipModal()" style="border: none; background: none; font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="mentorshipForm" onsubmit="handleSaveMentorship(event)">
+          <div class="form-group">
+            <label>Target Startup</label>
+            <select id="mentorStartupSelect">
+              <!-- Populated by JS -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Mentor Name</label>
+            <input type="text" id="mentorName" value="Dr. Rohan Appasaheb Borgalli" required>
+          </div>
+          <div class="form-group">
+            <label>Focus Area</label>
+            <input type="text" id="mentorFocus" placeholder="e.g. DeepTech Architecture & Clinic Pilot Review" required>
+          </div>
+          <div class="form-group">
+            <label>Health Rating (1 to 5 Stars)</label>
+            <select id="mentorRating">
+              <option value="5">⭐⭐⭐⭐⭐ 5 - Exceptional Progress</option>
+              <option value="4" selected>⭐⭐⭐⭐ 4 - Strong Milestone Attainment</option>
+              <option value="3">⭐⭐⭐ 3 - Satisfactory (Minor delays)</option>
+              <option value="2">⭐⭐ 2 - At Risk (Action required)</option>
+              <option value="1">⭐ 1 - Critical Intervention Needed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Mentor Feedback & Evaluation Remarks</label>
+            <textarea id="mentorFeedback" rows="3" required placeholder="Detailed feedback..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Action Items for Founders</label>
+            <textarea id="mentorActions" rows="2" placeholder="Next steps..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-accent" style="width: 100%;">Submit Mentorship Evaluation</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <div class="footer-dev">
+        Platform Architecture & Implementation: <b>Developed by Dr. Rohan Appasaheb Borgalli</b>
+        <div style="font-size: 0.78rem; color: #94a3b8;">Faculty Incharge, Technology Business Incubator (TBI) | Asst. Prof., EXTC Engineering</div>
+      </div>
+      <div class="footer-sakec">
+        Shah & Anchor Kutchhi Engineering College (SAKEC), Chembur, Mumbai<br>
+        Autonomous Institute Affiliated to University of Mumbai | NAAC 'A' Grade
+      </div>
+    </div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
