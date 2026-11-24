@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: sakec-tbi
+    runtime: python
+    region: singapore
+    plan: free
+    buildCommand: python3 database.py
+    startCommand: python3 server.py
+    envVars:
+      - key: SAKEC_DB_PATH
+        value: /tmp/sakec_tbi.db
+      - key: ONEDRIVE_UPLOAD_URL
+        value: https://onedrive.live.com/

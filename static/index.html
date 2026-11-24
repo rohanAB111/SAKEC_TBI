@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAKEC Technology Business Incubator (TBI) — Cloud Incubation Portal</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand-section">
+        <div class="college-badge">
+          <div class="title">SAKEC</div>
+          <div class="sub">TBI Chembur</div>
+        </div>
+        <div class="brand-titles">
+          <h1>SAKEC Technology Business Incubator (TBI) Portal</h1>
+          <p>Shah &amp; Anchor Kutchhi Engineering College — Year-Wise Incubation, Pre-Incubation, OneDrive Docs &amp; Reports</p>
+        </div>
+      </div>
+
+      <div class="header-meta">
+        <div class="attribution-tag">Developed by Dr. Rohan Appasaheb Borgalli</div>
+        <div class="user-status" id="headerUserStatus" style="display:none;">
+          <span class="user-badge" id="currentUserDisplay"></span>
+          <button class="btn-auth" style="background:rgba(255,255,255,0.2);color:#fff;" onclick="openChangePwdModal()">🔑 Password</button>
+          <button class="btn-auth" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sakec-acronym-bar">
+      <span><b>S</b> – Sparkup</span>
+      <span><b>A</b> – Accelerate</span>
+      <span><b>K</b> – Katalyst</span>
+      <span><b>E</b> – Emerge</span>
+      <span><b>C</b> – Cohesion</span>
+      <span>OneDrive Repository: <b>incubation@sakec.ac.in</b> &bull; Cohorts: 2024-25 | 2025-26 | 2026-27</span>
+    </div>
+  </header>
+
+  <!-- PUBLIC LOGIN GATE (Shown until user logs in; protects student PRNs, phones & documents on public Render URL) -->
+  <section id="loginGateView" class="main-container" style="max-width:1100px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;align-items:start;">
+      <!-- Login Card -->
+      <div class="content-card" style="border-top:4px solid var(--accent);">
+        <h2 style="color:var(--primary);margin-bottom:0.35rem;">🔐 Portal Sign In</h2>
+        <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:1.1rem;">
+          Sign in with your SAKEC TBI Admin, Authority, Mentor, or Founder account to view year-wise reports, update progress, and upload documents to <b>incubation@sakec.ac.in</b> OneDrive.
+        </p>
+        <form onsubmit="handleLogin(event)">
+          <div class="form-group"><label>Username</label><input type="text" id="loginUsername" required placeholder="e.g. rohan.borgalli or founder.dashfit"></div>
+          <div class="form-group"><label>Password</label><input type="password" id="loginPassword" required placeholder="Enter password"></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:0.6rem;">Sign In to SAKEC TBI Portal</button>
+        </form>
+        <div style="margin-top:1.15rem;padding-top:0.9rem;border-top:1px solid var(--border);font-size:0.78rem;color:var(--text-muted);">
+          <b>Role Access Levels:</b><br>
+          &bull; <b>Faculty Incharge / Admin:</b> Full control, create admin/founder accounts, onboard startups, verify OneDrive docs, download year-wise reports.<br>
+          &bull; <b>Authorities (Principal / Dean R&amp;D):</b> Unified year-wise dashboard &amp; official PDF/CSV report downloads.<br>
+          &bull; <b>Founders:</b> Update startup progress, KPIs, WorkOS Digital Twin, USim simulations &amp; upload documents to <b>incubation@sakec.ac.in</b> OneDrive.
+        </div>
+      </div>
+
+      <!-- Safe Public TBI Showcase (No Personal Student Data) -->
+      <div class="content-card">
+        <h2 style="color:var(--primary);margin-bottom:0.35rem;">🏛️ SAKEC TBI Public Overview</h2>
+        <p style="font-size:0.84rem;color:var(--text-muted);margin-bottom:1rem;">
+          Incubated (Pvt. Ltd.) &amp; Pre-Incubation ventures supported at Shah &amp; Anchor Kutchhi Engineering College (2024–2027).
+        </p>
+        <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1rem;">
+          <div class="kpi-card gold"><div class="kpi-label">Ventures</div><div class="kpi-value" id="pubTotal">-</div></div>
+          <div class="kpi-card green"><div class="kpi-label">Pvt. Ltd.</div><div class="kpi-value" id="pubPvt">-</div></div>
+          <div class="kpi-card purple"><div class="kpi-label">Pre-Inc.</div><div class="kpi-value" id="pubPre">-</div></div>
+        </div>
+        <div id="publicShowcaseList" style="display:flex;flex-direction:column;gap:0.5rem;max-height:360px;overflow-y:auto;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AUTHENTICATED PORTAL WORKSPACE -->
+  <div id="appWorkspace" style="display:none;flex:1;flex-direction:column;">
+
+    <!-- Year-Wise & Track Filter Ribbon + Official Year-Wise Report Button -->
+    <div class="year-filter-bar">
+      <div class="pill-group">
+        <span class="pill-label">Academic Year:</span>
+        <button class="year-pill active" data-year="all" onclick="setYearFilter('all')">All Years (2024–27)</button>
+        <button class="year-pill" data-year="2024-25" onclick="setYearFilter('2024-25')">2024-25</button>
+        <button class="year-pill" data-year="2025-26" onclick="setYearFilter('2025-26')">2025-26</button>
+        <button class="year-pill" data-year="2026-27" onclick="setYearFilter('2026-27')">2026-27</button>
+      </div>
+      <div class="pill-group">
+        <span class="pill-label">Track:</span>
+        <button class="type-pill active" data-type="all" onclick="setTypeFilter('all')">All</button>
+        <button class="type-pill" data-type="Incubated (Pvt. Ltd.)" onclick="setTypeFilter('Incubated (Pvt. Ltd.)')">Incubated (Pvt. Ltd.)</button>
+        <button class="type-pill" data-type="Pre-Incubation" onclick="setTypeFilter('Pre-Incubation')">Pre-Incubation</button>
+        <button class="btn btn-accent btn-sm" onclick="openOfficialYearReport()">🖨️ Download Year-Wise Report (PDF)</button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('tab-portfolio')">📊 Unified Portfolio &amp; Reports</button>
+      <button class="nav-tab" onclick="switchTab('tab-documents')">☁️ Documents &amp; OneDrive</button>
+      <button class="nav-tab" onclick="switchTab('tab-digital-twin')">🏢 WorkOS Digital Twin &amp; CIN/DIN</button>
+      <button class="nav-tab" onclick="switchTab('tab-interns')">🎓 Founders &amp; Interns</button>
+      <button class="nav-tab" onclick="switchTab('tab-usim')">📈 USim Simulator</button>
+      <button class="nav-tab" onclick="switchTab('tab-milestones')">🎯 Milestones &amp; KPIs</button>
+      <button class="nav-tab" onclick="switchTab('tab-mentorship')">🤝 Mentorship</button>
+      <button class="nav-tab" id="adminNavTab" onclick="switchTab('tab-scale')">🚀 Admin, Accounts &amp; OneDrive</button>
+    </nav>
+
+    <main class="main-container">
+
+      <!-- TAB 1: UNIFIED PORTFOLIO & YEAR-WISE REPORTS -->
+      <section id="tab-portfolio" class="tab-content active">
+        <div class="kpi-grid">
+          <div class="kpi-card gold"><div class="kpi-label">Total Ventures</div><div class="kpi-value" id="kpiTotalStartups">0</div><div class="kpi-sub" id="kpiYearLabel">All Years</div></div>
+          <div class="kpi-card green"><div class="kpi-label">Incubated (Pvt. Ltd.)</div><div class="kpi-value" id="kpiPvtLtd">0</div><div class="kpi-sub">MCA CIN &amp; DIN Verified</div></div>
+          <div class="kpi-card purple"><div class="kpi-label">Pre-Incubation</div><div class="kpi-value" id="kpiPreInc">0</div><div class="kpi-sub">Non-Pvt. Ltd. Ventures</div></div>
+          <div class="kpi-card blue"><div class="kpi-label">Founders &amp; Interns</div><div class="kpi-value" id="kpiTotalStudents">0</div><div class="kpi-sub">Unique students engaged</div></div>
+          <div class="kpi-card orange"><div class="kpi-label">OneDrive Docs</div><div class="kpi-value" id="kpiDocsProgress">0/0</div><div class="kpi-sub">Submitted / Verified</div></div>
+        </div>
+
+        <div class="year-cards-grid" id="yearSummaryCards"></div>
+
+        <div class="content-card" style="border-left:4px solid var(--success);">
+          <div class="section-title">
+            <span>🏢 Section A: Incubated Startups — Private Limited (MCA CIN &amp; DIN Verified)</span>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+              <input type="text" id="portfolioSearchInput" placeholder="Search startup, CIN, DIN, founder..." onkeyup="filterPortfolioTable()" style="padding:0.4rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.84rem;width:240px;">
+              <button class="btn btn-accent btn-sm" onclick="openOfficialYearReport()">🖨️ Official Year-Wise Report (PDF)</button>
+              <button class="btn btn-outline btn-sm" onclick="exportPortfolioCSV()">📥 Startups CSV</button>
+              <button class="btn btn-outline btn-sm" onclick="exportInternsCSV()">📥 Interns CSV</button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Company Name &amp; Stage</th>
+                  <th>CIN &amp; Incorporation</th>
+                  <th>Active Year(s)</th>
+                  <th>Directors &amp; DIN Numbers</th>
+                  <th>Interns</th>
+                  <th>OneDrive Docs</th>
+                  <th>Phase</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="pvtPortfolioTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="content-card" style="border-left:4px solid var(--purple);">
+          <div class="section-title">
+            <span>🌱 Section B: Pre-Incubation Startups — Non-Pvt. Ltd. Student &amp; Early Ventures</span>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Venture Name &amp; Innovation</th>
+                  <th>Department</th>
+                  <th>Active Year(s)</th>
+                  <th>Founder(s) &amp; Contact</th>
+                  <th>Interns</th>
+                  <th>OneDrive Docs</th>
+                  <th>Phase</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="prePortfolioTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: DOCUMENTS & ONEDRIVE HUB (incubation@sakec.ac.in) -->
+      <section id="tab-documents" class="tab-content">
+        <div class="mca-card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+          <div>
+            <h3 style="color:var(--primary);margin-bottom:0.25rem;">☁️ SAKEC TBI Official OneDrive Document Repository</h3>
+            <p style="font-size:0.85rem;color:var(--text-main);">
+              All required startup documents (COI, DIN, Pitch Deck, Incubation Agreement, Progress Reports, Intern Logs) are stored on <b><span id="odAccountLabel">incubation@sakec.ac.in</span></b> OneDrive.
+            </p>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;">
+              <b>Founders:</b> Step 1 — Click the OneDrive Upload button to upload your file. Step 2 — Click <b>📎 Submit Link</b> on the row below to log the uploaded OneDrive link for Faculty Incharge verification.
+            </p>
+          </div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <a id="odMasterUploadBtn" href="https://onedrive.live.com/" target="_blank" class="btn btn-primary" style="text-decoration:none;">☁️ Upload to incubation@sakec.ac.in OneDrive</a>
+            <button class="btn btn-accent" onclick="openAddDocModal()">+ Log Additional Document</button>
+          </div>
+        </div>
+
+        <div class="content-card">
+          <div class="section-title">
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+              <span>Required Startup Documents Checklist</span>
+              <select id="docStartupFilter" onchange="loadDocumentsTable()" style="padding:0.35rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.84rem;"></select>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Startup</th>
+                  <th>Required Document</th>
+                  <th>Year</th>
+                  <th>Status</th>
+                  <th>OneDrive File Link</th>
+                  <th>Uploaded By &amp; Remarks</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="documentsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: WORKOS DIGITAL TWIN & CIN/DIN -->
+      <section id="tab-digital-twin" class="tab-content">
+        <div class="content-card">
+          <div class="section-title">
+            <div style="display:flex;align-items:center;gap:0.85rem;flex-wrap:wrap;">
+              <span>WorkOS Digital Twin &amp; MCA Corporate Registry</span>
+              <select id="dtStartupSelect" onchange="loadDigitalTwin(this.value)" style="padding:0.4rem 0.85rem;border-radius:var(--radius);border:1px solid var(--border);font-weight:600;color:var(--primary);"></select>
+            </div>
+            <div style="display:flex;gap:0.5rem;">
+              <button class="btn btn-primary btn-sm" onclick="openEditStartupProfileModal()">✏️ Edit Startup Profile</button>
+              <button class="btn btn-outline btn-sm" onclick="openEditDigitalTwinModal()">📄 Update Digital Twin</button>
+            </div>
+          </div>
+          <div id="digitalTwinHeader" style="margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border);"></div>
+          <div id="mcaCorporateCard" class="mca-card"></div>
+          <div class="dt-grid">
+            <div class="dt-section"><h3>💡 Value Proposition</h3><p id="dtValueProp"></p></div>
+            <div class="dt-section"><h3>📊 Business Model</h3><div id="dtBizModel"></div></div>
+            <div class="dt-section"><h3>🎯 Target Market</h3><p id="dtTargetMarket"></p></div>
+            <div class="dt-section"><h3>🛠️ Tech Stack</h3><p id="dtTechStack"></p></div>
+            <div class="dt-section"><h3>👥 Core Team</h3><div id="dtTeamStructure"></div></div>
+            <div class="dt-section"><h3>📈 Traction &amp; Pipeline</h3><p id="dtSalesPipeline"></p></div>
+            <div class="dt-section"><h3>🗺️ Roadmap</h3><div id="dtRoadmap"></div></div>
+            <div class="dt-section"><h3>⚠️ Risks &amp; Compliance</h3><p id="dtRisk"></p></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: FOUNDERS & INTERNS -->
+      <section id="tab-interns" class="tab-content">
+        <div class="content-card">
+          <div class="section-title">
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+              <span>Founders &amp; Student Interns Directory</span>
+              <select id="internStartupFilter" onchange="loadInternsTable()" style="padding:0.35rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.84rem;"></select>
+              <select id="internSemFilter" onchange="loadInternsTable()" style="padding:0.35rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.84rem;">
+                <option value="all">All Semesters</option><option value="Odd Sem">Odd Sem</option><option value="Even Sem">Even Sem</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:0.5rem;">
+              <input type="text" id="internSearchInput" placeholder="Search name, PRN, dept..." onkeyup="filterInternsTable()" style="padding:0.35rem 0.7rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.84rem;width:200px;">
+              <button class="btn btn-primary btn-sm" onclick="openAddInternModal()">+ Add Founder / Intern</button>
+              <button class="btn btn-outline btn-sm" onclick="exportInternsCSV()">📥 Export CSV</button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead><tr><th>Year &amp; Sem</th><th>Startup</th><th>Name</th><th>Role</th><th>Class &amp; Dept</th><th>PRN</th><th>Phone &amp; Email</th><th>Duration</th></tr></thead>
+              <tbody id="internsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: USIM SIMULATOR -->
+      <section id="tab-usim" class="tab-content">
+        <div class="content-card">
+          <div class="section-title">
+            <span>USim — Financial &amp; Runway Simulator</span>
+            <select id="usimStartupSelect" onchange="prefillSimulator(this.value)" style="padding:0.4rem 0.85rem;border-radius:var(--radius);border:1px solid var(--border);font-weight:600;"></select>
+          </div>
+          <div class="simulator-layout">
+            <div class="sim-controls">
+              <div class="form-group"><label>Base Price (₹): <span id="valBasePrice">500</span></label><input type="range" id="simBasePrice" min="100" max="50000" step="100" value="500" oninput="updateSimFromSliders()"></div>
+              <div class="form-group"><label>Monthly Fixed Costs (₹): <span id="valFixedCost">50000</span></label><input type="range" id="simFixedCost" min="2000" max="300000" step="2000" value="50000" oninput="updateSimFromSliders()"></div>
+              <div class="form-group"><label>Variable Cost/Unit (₹): <span id="valVarCost">50</span></label><input type="range" id="simVarCost" min="0" max="10000" step="50" value="50" oninput="updateSimFromSliders()"></div>
+              <div class="form-group"><label>Marketing Spend (₹): <span id="valMarketing">20000</span></label><input type="range" id="simMarketing" min="0" max="150000" step="2500" value="20000" oninput="updateSimFromSliders()"></div>
+              <div class="form-group"><label>CAC (₹): <span id="valCAC">1500</span></label><input type="range" id="simCAC" min="200" max="15000" step="100" value="1500" oninput="updateSimFromSliders()"></div>
+              <div class="form-group"><label>Organic Growth (%): <span id="valGrowth">15%</span></label><input type="range" id="simGrowth" min="1" max="50" step="1" value="15" oninput="updateSimFromSliders()"></div>
+              <div class="form-group"><label>Churn Rate (%): <span id="valChurn">3%</span></label><input type="range" id="simChurn" min="0" max="25" step="0.5" value="3" oninput="updateSimFromSliders()"></div>
+              <div class="form-group"><label>Cash in Bank (₹):</label><input type="number" id="simCash" value="500000" onchange="runSimulation()"></div>
+              <div class="form-group"><label>Starting Customers:</label><input type="number" id="simCustomers" value="10" onchange="runSimulation()"></div>
+              <button class="btn btn-accent" style="width:100%;" onclick="saveCurrentSimulation()">💾 Save Scenario</button>
+            </div>
+            <div>
+              <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
+                <div class="kpi-card green"><div class="kpi-label">Margin</div><div class="kpi-value" style="font-size:1.3rem;" id="simOutMargin">₹0</div><div class="kpi-sub" id="simOutMarginPct">0%</div></div>
+                <div class="kpi-card blue"><div class="kpi-label">LTV / CAC</div><div class="kpi-value" style="font-size:1.3rem;" id="simOutLtvCac">0x</div></div>
+                <div class="kpi-card gold"><div class="kpi-label">Break-Even</div><div class="kpi-value" style="font-size:1.3rem;" id="simOutBreakEven">-</div></div>
+                <div class="kpi-card orange"><div class="kpi-label">Projected ARR</div><div class="kpi-value" style="font-size:1.3rem;" id="simOutARR">₹0</div><div class="kpi-sub" id="simOutRunway">Runway</div></div>
+              </div>
+              <div class="content-card"><div id="simChartContainer" style="width:100%;height:185px;"></div></div>
+              <div class="content-card"><div class="table-responsive" style="max-height:230px;overflow-y:auto;"><table><thead><tr><th>Month</th><th>Clients</th><th>Revenue</th><th>Expenses</th><th>Net Flow</th><th>Cash</th></tr></thead><tbody id="simTableBody"></tbody></table></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: MILESTONES & KPIs -->
+      <section id="tab-milestones" class="tab-content">
+        <div class="content-card">
+          <div class="section-title">
+            <div style="display:flex;align-items:center;gap:0.85rem;">
+              <span>Incubation Milestones</span>
+              <select id="milestoneStartupSelect" onchange="loadMilestones(this.value)" style="padding:0.4rem 0.85rem;border-radius:var(--radius);border:1px solid var(--border);font-weight:600;"></select>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openAddMilestoneModal()">+ Add Milestone</button>
+          </div>
+          <div class="table-responsive"><table><thead><tr><th>Phase</th><th>Deliverable</th><th>Target Date</th><th>Status</th><th>Verification Notes</th><th>Action</th></tr></thead><tbody id="milestonesTableBody"></tbody></table></div>
+        </div>
+        <div class="content-card">
+          <div class="section-title"><span>Monthly KPIs</span><button class="btn btn-outline btn-sm" onclick="openLogKPIModal()">+ Log Monthly KPI</button></div>
+          <div class="table-responsive"><table><thead><tr><th>Month</th><th>Revenue</th><th>Burn</th><th>Clients</th><th>Users</th><th>Notes</th></tr></thead><tbody id="kpiTableBody"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- TAB 7: MENTORSHIP -->
+      <section id="tab-mentorship" class="tab-content">
+        <div class="content-card">
+          <div class="section-title"><span>Mentorship &amp; Screening Reviews</span><button class="btn btn-accent btn-sm" onclick="openLogMentorshipModal()">+ Log Review</button></div>
+          <div class="table-responsive"><table><thead><tr><th>Date</th><th>Startup</th><th>Mentor</th><th>Focus</th><th>Rating</th><th>Feedback</th><th>Actions</th></tr></thead><tbody id="mentorshipTableBody"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- TAB 8: ADMIN, ACCOUNTS & ONEDRIVE CONFIG -->
+      <section id="tab-scale" class="tab-content">
+
+        <!-- 1. OneDrive Integration Settings -->
+        <div class="content-card" style="border-left:4px solid var(--info);">
+          <div class="section-title">
+            <span>☁️ Link incubation@sakec.ac.in OneDrive Repository</span>
+            <button class="btn btn-outline btn-sm" onclick="downloadJsonBackup()">💾 Download Full JSON Backup</button>
+          </div>
+          <form onsubmit="handleSaveSettings(event)" style="display:grid;grid-template-columns:1fr 2fr auto;gap:0.75rem;align-items:end;">
+            <div class="form-group" style="margin:0;"><label>OneDrive Account Email</label><input type="email" id="setOdEmail" value="incubation@sakec.ac.in"></div>
+            <div class="form-group" style="margin:0;"><label>Master OneDrive File Request / Upload Folder Link</label><input type="text" id="setOdUrl" placeholder="Paste your incubation@sakec.ac.in OneDrive upload link here"></div>
+            <button type="submit" class="btn btn-primary">Save OneDrive Link</button>
+          </form>
+        </div>
+
+        <!-- 2. Onboard New Startup / Pre-Incubation + Auto-Create Founder Login -->
+        <div class="content-card" style="border-top:4px solid var(--accent);">
+          <div class="section-title"><span>🚀 Onboard New Incubated Startup or Pre-Incubation Venture (Auto-Provisions Founder Login &amp; Document Checklist)</span></div>
+          <form id="onboardStartupForm" onsubmit="handleOnboardStartup(event)" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0.8rem;">
+            <div class="form-group"><label>Startup Name *</label><input type="text" id="newStartupName" required></div>
+            <div class="form-group"><label>Academic Year *</label>
+              <select id="newStartupYear"><option value="2026-27">2026-27</option><option value="2025-26">2025-26</option><option value="2024-25">2024-25</option><option value="2027-28">2027-28</option></select>
+            </div>
+            <div class="form-group"><label>Track *</label>
+              <select id="newStartupTrack"><option value="Pre-Incubation">Pre-Incubation (Non-Pvt. Ltd.)</option><option value="Incubated (Pvt. Ltd.)">Incubated (Pvt. Ltd.)</option></select>
+            </div>
+            <div class="form-group"><label>CIN (If Pvt. Ltd.)</label><input type="text" id="newStartupCIN" placeholder="U62099MH..."></div>
+            <div class="form-group"><label>Department *</label><input type="text" id="newStartupDept" value="Computer Engineering" required></div>
+            <div class="form-group"><label>Founder Name *</label><input type="text" id="newStartupFounder" required></div>
+            <div class="form-group"><label>Founder Email *</label><input type="email" id="newStartupEmail" required></div>
+            <div class="form-group"><label>Founder Phone</label><input type="text" id="newStartupPhone"></div>
+            <div class="form-group"><label>Dedicated OneDrive Folder URL (Optional)</label><input type="text" id="newStartupOdUrl" placeholder="Uses master incubation@sakec.ac.in link if blank"></div>
+            <div class="form-group"><label>Assign Founder Login Username *</label><input type="text" id="newFounderUser" required placeholder="e.g. founder.newstartup"></div>
+            <div class="form-group"><label>Assign Founder Initial Password *</label><input type="text" id="newFounderPass" required value="Sakec@123"></div>
+            <div class="form-group" style="grid-column:1/-1;"><label>Tagline / Innovation Summary *</label><input type="text" id="newStartupTagline" required></div>
+            <div style="grid-column:1/-1;"><button type="submit" class="btn btn-primary">🚀 Onboard Startup, Create Founder Login &amp; Assign Document Checklist</button></div>
+          </form>
+        </div>
+
+        <!-- 3. User & Admin Account Management -->
+        <div class="content-card">
+          <div class="section-title">
+            <span>👥 Admin, Authority, Mentor &amp; Founder Accounts</span>
+            <button class="btn btn-accent btn-sm" onclick="openCreateUserModal()">+ Create New Admin / User Account</button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead><tr><th>Username</th><th>Full Name</th><th>Role</th><th>Designation / Startup</th><th>Email</th><th>Actions</th></tr></thead>
+              <tbody id="usersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODALS -->
+  <div class="modal-overlay" id="createUserModal">
+    <div class="modal-box">
+      <div class="modal-header"><h3>Create New Admin / User Account</h3><button onclick="closeModal('createUserModal')" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button></div>
+      <div class="modal-body">
+        <form onsubmit="handleCreateUser(event)" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div class="form-group"><label>Username *</label><input type="text" id="cuUsername" required placeholder="e.g. admin.extc"></div>
+          <div class="form-group"><label>Password *</label><input type="text" id="cuPassword" required value="Sakec@123"></div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Full Name *</label><input type="text" id="cuFullName" required placeholder="e.g. Prof. XYZ"></div>
+          <div class="form-group"><label>Email *</label><input type="email" id="cuEmail" required></div>
+          <div class="form-group"><label>Role *</label>
+            <select id="cuRole">
+              <option value="faculty_incharge">Admin / Faculty Coordinator (Full Update Rights)</option>
+              <option value="authority">College Authority (Principal / Dean — Reports)</option>
+              <option value="mentor">Mentor (Reviews &amp; Verification)</option>
+              <option value="founder">Startup Founder (Update Own Startup &amp; Docs)</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Designation</label><input type="text" id="cuDesig" placeholder="e.g. TBI Dept Coordinator"></div>
+          <div class="form-group"><label>Assign to Startup (If Founder)</label><select id="cuStartup"></select></div>
+          <div style="grid-column:1/-1;"><button type="submit" class="btn btn-primary" style="width:100%;">Create Account</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="addDocModal">
+    <div class="modal-box">
+      <div class="modal-header"><h3>Log Uploaded OneDrive Document</h3><button onclick="closeModal('addDocModal')" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button></div>
+      <div class="modal-body">
+        <form onsubmit="handleAddDocument(event)">
+          <div class="form-group"><label>Startup</label><select id="addDocStartup"></select></div>
+          <div class="form-group"><label>Academic Year</label><select id="addDocYear"><option value="2026-27">2026-27</option><option value="2025-26">2025-26</option><option value="2024-25">2024-25</option></select></div>
+          <div class="form-group"><label>Document Type *</label><input type="text" id="addDocType" required placeholder="e.g. Quarterly Financial Report / Patent Filing"></div>
+          <div class="form-group"><label>Description / Title *</label><input type="text" id="addDocTitle" required></div>
+          <div class="form-group"><label>OneDrive File Link (from incubation@sakec.ac.in OneDrive) *</label><input type="text" id="addDocUrl" required placeholder="https://..."></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Submit Document Link</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="changePwdModal">
+    <div class="modal-box" style="max-width:420px;">
+      <div class="modal-header"><h3>Change Your Password</h3><button onclick="closeModal('changePwdModal')" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button></div>
+      <div class="modal-body">
+        <form onsubmit="handleChangePassword(event)">
+          <div class="form-group"><label>Current Password</label><input type="password" id="cpOld" required></div>
+          <div class="form-group"><label>New Password (min 6 chars)</label><input type="password" id="cpNew" required minlength="6"></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Update Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="editStartupModal">
+    <div class="modal-box" style="max-width:660px;">
+      <div class="modal-header"><h3>Edit Startup Profile, CIN &amp; OneDrive Folder</h3><button onclick="closeModal('editStartupModal')" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button></div>
+      <div class="modal-body">
+        <form onsubmit="handleSaveStartupProfile(event)" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div class="form-group" style="grid-column:1/-1;"><label>Startup Name *</label><input type="text" id="editStName" required></div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Tagline *</label><input type="text" id="editStTagline" required></div>
+          <div class="form-group"><label>Track</label><select id="editStTrack"><option value="Incubated (Pvt. Ltd.)">Incubated (Pvt. Ltd.)</option><option value="Pre-Incubation">Pre-Incubation</option></select></div>
+          <div class="form-group"><label>Active Year(s)</label><input type="text" id="editStYears"></div>
+          <div class="form-group"><label>CIN</label><input type="text" id="editStCIN"></div>
+          <div class="form-group"><label>Incorporation Date</label><input type="text" id="editStIncDate"></div>
+          <div class="form-group"><label>Department</label><input type="text" id="editStDept" required></div>
+          <div class="form-group"><label>Founder Name</label><input type="text" id="editStFounder" required></div>
+          <div class="form-group"><label>Founder Email</label><input type="email" id="editStEmail" required></div>
+          <div class="form-group"><label>Phase (1-5)</label><select id="editStPhase"><option value="1">Phase 1</option><option value="2">Phase 2</option><option value="3">Phase 3</option><option value="4">Phase 4</option><option value="5">Phase 5</option></select></div>
+          <div class="form-group"><label>Stage</label><input type="text" id="editStStage"></div>
+          <div class="form-group"><label>Health Score</label><input type="number" id="editStHealth" min="0" max="100"></div>
+          <div class="form-group"><label>Monthly Revenue (₹)</label><input type="number" id="editStRev"></div>
+          <div class="form-group"><label>Monthly Burn (₹)</label><input type="number" id="editStBurn"></div>
+          <div class="form-group"><label>Cash in Bank (₹)</label><input type="number" id="editStCash"></div>
+          <div class="form-group"><label>OneDrive Folder URL</label><input type="text" id="editStOdUrl"></div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Registered Address</label><input type="text" id="editStAddress"></div>
+          <div style="grid-column:1/-1;"><button type="submit" class="btn btn-primary" style="width:100%;">💾 Save Startup Profile</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="editDtModal">
+    <div class="modal-box">
+      <div class="modal-header"><h3>Update Digital Twin</h3><button onclick="closeModal('editDtModal')" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button></div>
+      <div class="modal-body">
+        <form onsubmit="handleSaveDigitalTwin(event)">
+          <div class="form-group"><label>Value Proposition</label><textarea id="editDtValueProp" rows="2" required></textarea></div>
+          <div class="form-group"><label>Target Market</label><textarea id="editDtTargetMarket" rows="2" required></textarea></div>
+          <div class="form-group"><label>Traction / Pipeline</label><input type="text" id="editDtSalesPipeline" required></div>
+          <div class="form-group"><label>Tech Stack</label><input type="text" id="editDtTechStack" required></div>
+          <div class="form-group"><label>Risks &amp; Compliance</label><textarea id="editDtRisk" rows="2" required></textarea></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Save Digital Twin</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="addInternModal">
+    <div class="modal-box">
+      <div class="modal-header"><h3>Add Founder / Intern</h3><button onclick="closeModal('addInternModal')" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button></div>
+      <div class="modal-body">
+        <form onsubmit="handleSaveIntern(event)" style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;">
+          <div class="form-group" style="grid-column:1/-1;"><label>Startup *</label><select id="addInternStartup"></select></div>
+          <div class="form-group"><label>Year *</label><select id="addInternYear"><option value="2026-27">2026-27</option><option value="2025-26">2025-26</option><option value="2024-25">2024-25</option></select></div>
+          <div class="form-group"><label>Semester *</label><select id="addInternSem"><option value="Odd Sem">Odd Sem</option><option value="Even Sem">Even Sem</option></select></div>
+          <div class="form-group"><label>Name *</label><input type="text" id="addInternName" required></div>
+          <div class="form-group"><label>Role *</label><select id="addInternRole"><option value="Intern">Intern</option><option value="Founder">Founder</option></select></div>
+          <div class="form-group"><label>Class</label><input type="text" id="addInternClass"></div>
+          <div class="form-group"><label>Department</label><input type="text" id="addInternDept"></div>
+          <div class="form-group"><label>PRN</label><input type="text" id="addInternPRN"></div>
+          <div class="form-group"><label>Phone</label><input type="text" id="addInternPhone"></div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Email</label><input type="email" id="addInternEmail"></div>
+          <div class="form-group"><label>Start Date</label><input type="date" id="addInternStart"></div>
+          <div class="form-group"><label>End Date</label><input type="date" id="addInternEnd"></div>
+          <div style="grid-column:1/-1;"><button type="submit" class="btn btn-primary" style="width:100%;">Save Intern</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="addMilestoneModal">
+    <div class="modal-box"><div class="modal-header"><h3>Add Milestone</h3><button onclick="closeModal('addMilestoneModal')" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button></div>
+      <div class="modal-body"><form onsubmit="handleSaveNewMilestone(event)"><div class="form-group"><label>Deliverable *</label><input type="text" id="newMilestoneTitle" required></div><div class="form-group"><label>Phase</label><select id="newMilestonePhase"><option value="1">Phase 1</option><option value="2">Phase 2</option><option value="3">Phase 3</option><option value="4">Phase 4</option><option value="5">Phase 5</option></select></div><div class="form-group"><label>Target Date *</label><input type="date" id="newMilestoneDate" required></div><button type="submit" class="btn btn-primary" style="width:100%;">Create Milestone</button></form></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="logKpiModal">
+    <div class="modal-box"><div class="modal-header"><h3>Log Monthly KPI</h3><button onclick="closeModal('logKpiModal')" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button></div>
+      <div class="modal-body"><form onsubmit="handleSaveKPI(event)"><div class="form-group"><label>Month</label><input type="text" id="kpiMonth" value="2026-11" required></div><div class="form-group"><label>Revenue (₹)</label><input type="number" id="kpiRevenue" value="0" required></div><div class="form-group"><label>Burn (₹)</label><input type="number" id="kpiBurn" value="0" required></div><div class="form-group"><label>Clients</label><input type="number" id="kpiCustomers" value="0" required></div><div class="form-group"><label>Users</label><input type="number" id="kpiUsers" value="0" required></div><div class="form-group"><label>Notes</label><textarea id="kpiNotes" rows="2"></textarea></div><button type="submit" class="btn btn-primary" style="width:100%;">Record KPI</button></form></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="mentorshipModal">
+    <div class="modal-box"><div class="modal-header"><h3>Log Mentorship Review</h3><button onclick="closeModal('mentorshipModal')" style="border:none;background:none;font-size:1.2rem;cursor:pointer;">✕</button></div>
+      <div class="modal-body"><form onsubmit="handleSaveMentorship(event)"><div class="form-group"><label>Startup</label><select id="mentorStartupSelect"></select></div><div class="form-group"><label>Mentor</label><input type="text" id="mentorName" value="Dr. Rohan Appasaheb Borgalli" required></div><div class="form-group"><label>Focus Area</label><input type="text" id="mentorFocus" required></div><div class="form-group"><label>Rating</label><select id="mentorRating"><option value="5">5 - Exceptional</option><option value="4" selected>4 - Strong</option><option value="3">3 - Satisfactory</option><option value="2">2 - At Risk</option><option value="1">1 - Critical</option></select></div><div class="form-group"><label>Feedback</label><textarea id="mentorFeedback" rows="3" required></textarea></div><div class="form-group"><label>Action Items</label><textarea id="mentorActions" rows="2"></textarea></div><button type="submit" class="btn btn-accent" style="width:100%;">Submit Review</button></form></div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <div class="footer-content">
+      <div class="footer-dev">
+        Platform Architecture &amp; Implementation: <b>Developed by Dr. Rohan Appasaheb Borgalli</b>
+        <div style="font-size:0.78rem;color:#94a3b8;">Faculty Incharge, Technology Business Incubator (TBI) | Asst. Prof., EXTC Engineering</div>
+      </div>
+      <div class="footer-sakec">
+        Shah &amp; Anchor Kutchhi Engineering College (SAKEC), Chembur, Mumbai<br>
+        OneDrive Repository: incubation@sakec.ac.in
+      </div>
+    </div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

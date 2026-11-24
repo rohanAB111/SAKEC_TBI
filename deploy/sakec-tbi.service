@@ -1,0 +1,18 @@
+[Unit]
+Description=SAKEC Technology Business Incubator (TBI) Management Platform
+Documentation=https://www.sakec.ac.in/technology-business-incubator-tbi/
+After=network.target
+
+[Service]
+Type=simple
+User=sakecsandbox
+Group=sakecsandbox
+WorkingDirectory=/home/sakecsandbox/sakec-tbi
+Environment=PORT=8080
+Environment=SAKEC_DB_PATH=/home/sakecsandbox/sakec-tbi/data/sakec_tbi.db
+ExecStart=/usr/bin/python3 /home/sakecsandbox/sakec-tbi/server.py
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
